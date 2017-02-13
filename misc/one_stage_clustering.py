@@ -87,8 +87,8 @@ if __name__ == "__main__":
         log.write("  clusters found = " + str(int(clusters_found)).zfill(2) +
                   ". time = " + str(clustering_time) + "\n")
         data.write(img_name.zfill(6) + "," +
-                   utils.graph_density(graph_mat) + "," +
-                   utils.graph_avg_degree(graph_mat) + "," +
+                   str(utils.graph_density(graph_mat)) + "," +
+                   str(utils.graph_avg_degree(graph_mat)) + "," +
                    str(int(clusters_found)).zfill(2) + "," +
                    format(clustering_time, '.4f').zfill(8) + "," +
                    format(RI_VOI_comp.avgRI, '.4f') + "," +
