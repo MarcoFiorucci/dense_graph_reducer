@@ -5,21 +5,22 @@ import skimage.transform
 from sklearn.cluster import spectral_clustering
 import BerkeleyImgSegmentationPerfEvaluator.RI_VOI_computer
 
-from misc import utils
-from misc import dominant_sets
+import utils
+import dominant_sets
 
 
-root = ".."
-main_dir = root + "//test_data"
-img_dir_path = root + "//test_data//original"
-res_dir_path = root + "//test_data//results"
-gt_dir_path = root + "//test_data//groundTruth"
-clustering_alg = "DS_n"
+root = "..//batches"
+main_dir = root + "//batch0"
+img_dir_path = main_dir + "//original"
+gt_dir_path = main_dir + "//groundTruth"
+res_dir_path = main_dir + "//results"
+
+clustering_alg = "DS"
 n_clusters = np.empty((0, 1))
 resize_factor = 0.25
 
 if __name__ == "__main__":
-    is_colored = True
+    is_colored = False
     is_weighted = True
 
     if not os.path.exists(os.path.normpath(res_dir_path)):
@@ -29,19 +30,19 @@ if __name__ == "__main__":
     if not os.path.exists(os.path.normpath(res_dir_path)):
         os.mkdir(os.path.normpath(res_dir_path))
 
-    res_dir_path += ("//" + clustering_alg)
+    res_dir_path += "//" + clustering_alg
     if not os.path.exists(os.path.normpath(res_dir_path)):
         os.mkdir(os.path.normpath(res_dir_path))
 
-    res_dir_path += "//one_stage"
+    res_dir_path += "//original"
     if not os.path.exists(os.path.normpath(res_dir_path)):
         os.mkdir(os.path.normpath(res_dir_path))
 
-    log = open(os.path.normpath(res_dir_path + "//FK_Sz1.log"), "w")
+    log = open(os.path.normpath(res_dir_path + "//one_stage.log"), "w")
     log.truncate()
-    data = open(os.path.normpath(res_dir_path + "//" + clustering_alg + "1.csv"),"w")
+    data = open(os.path.normpath(res_dir_path + "//" + clustering_alg + ".csv"), "w")
     data.truncate()
-    data.write("cf,t,PRI,VOI" + "\n")
+    data.write("dens,d,cf,t,PRI,VOI" + "\n")
     RI_VOI_comp = BerkeleyImgSegmentationPerfEvaluator.RI_VOI_computer.RIVOIComputer(1)
 
     for img_fname in sorted(os.listdir(os.path.normpath(img_dir_path))):
@@ -53,22 +54,22 @@ if __name__ == "__main__":
         if not os.path.exists(os.path.normpath(curr_res_dir_path)):
             os.mkdir(os.path.normpath(curr_res_dir_path))
 
-        graph_mat, original_img_shape, resized_img_shape = utils.from_image_to_adj_mat(img_pname, 1.0, is_colored,
-                                                                                       is_weighted, 1.0, resize_factor)
+        graph_mat, original_img_shape, resized_img_shape = utils.from_img_to_adj_mat(img_pname, 1.0, is_colored,
+                                                                                     is_weighted, 1.0, resize_factor)
 
-        log.write("image " + img_fname + ". density = " + str(utils.graph_density(graph_mat)) + "\n")
+        log.write("image " + img_fname + "\n")
 
         start_time = time.time()
-        if clustering_alg == "SC_n":
+        if clustering_alg == "SC":
             results = spectral_clustering(graph_mat, 4) + 1
-        elif clustering_alg == "DS_n":
+        elif clustering_alg == "DS":
             results = dominant_sets.dominant_sets(graph_mat) + 1
         else:
             raise ValueError("Incorrect clustering algorithm")
 
-        del graph_mat
         results = results.reshape(resized_img_shape)
-        elapsed_time = time.time() - start_time
+        clustering_time = time.time() - start_time
+        del graph_mat
 
         clusters_found = int(np.max(results))
         n_clusters = np.vstack((n_clusters, np.array([clusters_found])))
@@ -83,8 +84,15 @@ if __name__ == "__main__":
             RI_VOI_comp.compute_RI_and_VOI_sums()
         RI_VOI_comp.update_partial_values(0, len(gts))
 
-        print("finished. saving data")
-        log.write("  clusters found = " + str(int(clusters_found)).zfill(2) + ". time = " + str(elapsed_time) + "\n")
-        data.write(str(int(clusters_found)).zfill(2) + "," + str(elapsed_time) + "," + str(RI_VOI_comp.avgRI) + "," + str(RI_VOI_comp.avgVOI) + "\n")
+        print("finished. Saving data")
+        log.write("  clusters found = " + str(int(clusters_found)).zfill(2) +
+                  ". time = " + str(clustering_time) + "\n")
+        data.write(img_name.zfill(6) + "," +
+                   utils.graph_density(graph_mat) + "," +
+                   utils.graph_avg_degree(graph_mat) + "," +
+                   str(int(clusters_found)).zfill(2) + "," +
+                   format(clustering_time, '.4f').zfill(8) + "," +
+                   format(RI_VOI_comp.avgRI, '.4f') + "," +
+                   format(RI_VOI_comp.avgVOI, '.4f') + "\n")
         np.save(os.path.normpath(curr_res_dir_path + "//" + img_name + "_cl_" + str(int(clusters_found)) + ".npy"), results)
     np.save(os.path.normpath(res_dir_path + "//n_clusters.npy"), n_clusters)
