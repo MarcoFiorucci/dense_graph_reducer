@@ -69,7 +69,6 @@ if __name__ == "__main__":
 
         results = results.reshape(resized_img_shape)
         clustering_time = time.time() - start_time
-        del graph_mat
 
         clusters_found = int(np.max(results))
         n_clusters = np.vstack((n_clusters, np.array([clusters_found])))
@@ -95,4 +94,5 @@ if __name__ == "__main__":
                    format(RI_VOI_comp.avgRI, '.4f') + "," +
                    format(RI_VOI_comp.avgVOI, '.4f') + "\n")
         np.save(os.path.normpath(curr_res_dir_path + "//" + img_name + "_cl_" + str(int(clusters_found)) + ".npy"), results)
+        del graph_mat
     np.save(os.path.normpath(res_dir_path + "//n_clusters.npy"), n_clusters)
