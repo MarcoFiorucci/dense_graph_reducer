@@ -93,7 +93,16 @@ def graph_density(graph_mat):
     :param graph_mat: the similarity/adjacency matrix representing the graph
     :return the density of the graph
     """
-    return float(graph_mat.sum()) / float(graph_mat.shape[0] * (graph_mat.shape[0] - 1))
+    return graph_mat.sum() / graph_mat.shape[0] * (graph_mat.shape[0] - 1)
+
+
+def graph_avg_degree(graph_mat):
+    """
+    compute the average degree of undirected graphs
+    :param graph_mat: the similarity/adjacency matrix representing the graph
+    :return: the average degree of the graph
+    """
+    return graph_mat.sum() / graph_mat.shape[0]
 
 
 def generate_szemeredi_segs(iid, res_dir_path):
