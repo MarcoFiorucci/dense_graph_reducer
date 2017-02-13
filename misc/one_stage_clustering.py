@@ -42,7 +42,7 @@ if __name__ == "__main__":
     log.truncate()
     data = open(os.path.normpath(res_dir_path + "//" + clustering_alg + ".csv"), "w")
     data.truncate()
-    data.write("dens,d,cf,t,PRI,VOI" + "\n")
+    data.write("iid,dens,d,cf,t,PRI,VOI" + "\n")
     RI_VOI_comp = BerkeleyImgSegmentationPerfEvaluator.RI_VOI_computer.RIVOIComputer(1)
 
     for img_fname in sorted(os.listdir(os.path.normpath(img_dir_path))):
