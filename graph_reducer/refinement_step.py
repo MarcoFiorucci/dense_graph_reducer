@@ -3,7 +3,7 @@ import random
 import sys
 
 
-def randomized(self):
+def randoramized(self):
     """
     perform step 4 of Alon algorithm, performing the refinement of the pairs, processing nodes in a random way. Some heuristic is applied in order to
     speed up the process.
@@ -30,6 +30,8 @@ def degree_based(self):
                 irregular_r_indices.append(r)
 
         if irregular_r_indices:
+            np.random.seed(314)
+            random.seed(314)
             chosen = random.choice(irregular_r_indices)
             to_be_refined.remove(chosen)
             irregular_r_indices = []
