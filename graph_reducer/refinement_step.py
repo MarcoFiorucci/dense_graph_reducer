@@ -10,6 +10,34 @@ def randoramized(self):
     """
     pass
 
+def get_s_r_degrees(self, s, r):
+    """
+    Computes the degrees of s and r with respect to each other.
+    s: index of nodes of class s
+    r: index of nodes of class r
+    return: a numpy array where each index correspondent to a node (in s or r) contains the calculated degree, zero otherwise.
+    """
+
+    # Gets the indices of elements which are part of class s (same for r)
+    s_indices = np.where(self.classes == s)[0]
+    r_indices = np.where(self.classes == r)[0]
+
+    # Isolate the columns the adj_mat of the nodes of class s (same for r)
+    s_columns = self.adj_mat[:, s_indices]
+    r_columns = self.adj_mat[:, r_indices]
+
+    # Get the degrees of s w.r.t. the elements of r (same for r)
+    s_degs = r_columns[s_indices, :].sum(1)
+    r_degs = s_columns[r_indices, :].sum(1)
+
+    s_r_degs = np.zeros(len(self.degrees))
+
+    # Put the degree of s the indices of s (same for r)
+    s_r_degs[s_indices] = s_degs
+    s_r_degs[r_indices] = r_degs
+
+    return s_r_degs.astype(int)
+
 
 def degree_based(self):
     """
@@ -36,6 +64,8 @@ def degree_based(self):
             to_be_refined.remove(chosen)
             irregular_r_indices = []
 
+            s_r_degs = get_s_r_degrees(self, s, chosen)
+
             # i = 0 for r, i = 1 for s
             for i in [0, 1]:
                 cert_length = len(self.certs_compls_list[chosen - 2][s - 1][0][i])
@@ -53,15 +83,14 @@ def degree_based(self):
                 difference = len(greater_set) - self.classes_cardinality
                 # retrieve the first <difference> nodes sorted by degree.
                 # N.B. NODES ARE SORTED IN DESCENDING ORDER
-                difference_nodes_ordered_by_degree = sorted(greater_set,
-                                                            key=lambda el: np.where(self.degrees == el)[0],
-                                                            reverse=True)[0:difference]
+                difference_nodes_ordered_by_degree = sorted(greater_set, key=lambda el: s_r_degs[el], reverse=True)[0:difference]
 
                 self.classes[difference_nodes_ordered_by_degree] = 0
         else:
             self.k += 1
-            s_indices_ordered_by_degree = sorted(list(np.where(self.classes == s)[0]),
-                                                 key=lambda el: np.where(self.degrees == el)[0], reverse=True)
+
+            s_indices_ordered_by_degree = sorted(list(np.where(self.classes == s)[0]), key=lambda el: s_r_degs[el], reverse=True)
+
             if is_classes_cardinality_odd:
                 self.classes[s_indices_ordered_by_degree.pop(0)] = 0
             self.classes[s_indices_ordered_by_degree[0:self.classes_cardinality]] = self.k
