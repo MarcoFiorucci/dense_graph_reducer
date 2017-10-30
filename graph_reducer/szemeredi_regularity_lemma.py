@@ -91,7 +91,8 @@ class SzemerediRegularityLemma:
         """
         reconstructed_mat = np.zeros((self.N, self.N))
 
-        r_nodes = self.classes == 1
+        r_nodes = self.classes > 0
+
         reconstructed_mat[np.ix_(r_nodes, r_nodes)] = intracluster_weight
 
         for r in range(2, self.k + 1):
