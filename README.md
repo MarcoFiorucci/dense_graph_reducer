@@ -6,7 +6,7 @@ If you use this code please cite the following papers:
 
 M. Fiorucci, A. Torcinovich, M. Curado, F. Escolano, M. Pelillo. On the Interplay Between Strong Regularity and Graph Densification. In Lecture Notes in Computer Science, Springer, GbRPR 2017.
 
-Pelillo, M., Elezi, I., & Fiorucci, M. (2016). Revealing structure in large graphs: Szemerédi’s regularity lemma and its use in pattern recognition. Pattern Recognition Letters._
+Pelillo, M., Elezi, I., & Fiorucci, M. (2016). Revealing structure in large graphs: Szemerédi’s regularity lemma and its use in pattern recognition. Pattern Recognition Letters.
 
 Marco and Alessandro
 
